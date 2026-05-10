@@ -1,328 +1,181 @@
-# Hotel Occupancy Heatmap Calendar
+# Hotel Occupancy Heatmap
 
-A modern, interactive React application for visualizing hotel room occupancy across months with an intuitive calendar interface.
+A React + Vite dashboard for exploring hotel occupancy from `public/bookings.json`. The app shows a month calendar, a year overview, drag-selection for date ranges, booking details, filters, search, CSV export, and persisted UI state.
 
-## Features
+## What This App Shows
 
-### Core Features (6/6 Implemented)
+- Month view with a 7-column calendar grid.
+- Year view with 12 compact month cards.
+- Occupancy heatmap on a 0-10 room scale.
+- Drag selection across days, including reverse drags.
+- Booking panel for overlapping bookings.
+- Filters for room type, status, and source.
+- Guest-name search.
+- CSV export of the selected bookings.
+- localStorage persistence for month, view, filters, and search.
 
-1. **7-Column Day Grid with Month Navigation**
-   - Display all days of the current month in a 7-column grid (Sunday-Saturday)
-   - Previous/next month days shown dimmed (de-emphasized)
-   - Always maintains rectangular 6-row × 7-column layout
-   - Smooth month navigation with Previous/Next/Today buttons
+## Screenshots
 
-2. **Occupancy Heatmap (0-10 Room Scale)**
-   - Color gradient from light green (0 rooms occupied) to red (10 rooms occupied)
-   - Real-time occupancy calculation based on confirmed bookings
-   - Exclusive checkout date logic (e.g., checkout on Feb 13 means Feb 12 is last occupied night)
-   - Displays room count (e.g., "7/10") on each day
+I cannot write binary screenshot files into the repo with the current workspace tools, so this section documents the exact app states to capture from the browser.
 
-3. **Month Navigation & Today Button**
-   - Previous/Next buttons navigate between months
-   - "Today" button returns to current month instantly
-   - Current month persists in browser localStorage for returning users
-   - Responsive navigation bar with hover effects
+Recommended screenshots to add later:
 
-4. **Drag-to-Select Date Ranges (Bi-directional)**
-   - Click and drag to select any date range
-   - Works both directions (forward: May 5→15 and backward: May 15→5 select same range)
-   - Works across month boundaries (select from May into June)
-   - Selected dates highlighted with blue border and transparent overlay
+- Month view: the calendar, stats header, and booking panel together.
+- Drag selection: a highlighted date range with matching bookings listed.
+- Filters active: the booking panel after narrowing by room type or status.
+- Year view: the 12-month overview for the selected year.
 
-5. **Booking Detail Panel with Overlapping Booking Analysis**
-   - Shows all bookings overlapping the selected date range
-   - Displays booking count, guest name, room details, check-in/out dates, nights stayed, amount, status, and source
-   - CSV export functionality for selected bookings
-   - Filter bookings by room type and booking status
+If you want to embed them in the repo, add PNG files under something like `docs/screenshots/` and reference them here.
 
-6. **Async Data Loading from JSON**
-   - Loads 201 pre-configured bookings from `public/bookings.json`
-   - Handles loading states gracefully
-   - Error handling for failed data loads
-   - Data stored in centralized App state, passed to child components via props
+## How The App Works
 
-### Additional Features (Implemented)
+### Data Loading
 
-7. **Statistics Dashboard**
-   - Average occupancy percentage for current month
-   - Total revenue generated
-   - Longest stay duration
-   - Most booked room number
-   - Most popular room type
-   - Total confirmed bookings
-
-## Technology Stack
-
-- **React**: 18.2.0 - UI framework with hooks
-- **Vite**: 4.3.9 - Build tool and dev server
-- **CSS**: Plain vanilla CSS (no Tailwind, no component libraries)
-- **JavaScript**: ES6+ with native Date API for date calculations
-
-## Project Structure
-
-```
-react.js/
-├── public/
-│   └── bookings.json          # 201 hotel booking records (Jan 1 - May 2, 2026)
-├── src/
-│   ├── components/
-│   │   ├── Calendar.jsx       # Main calendar grid component
-│   │   ├── Calendar.css
-│   │   ├── DayCell.jsx        # Individual day cell with occupancy display
-│   │   ├── DayCell.css
-│   │   ├── Navigation.jsx     # Month navigation controls
-│   │   ├── Navigation.css
-│   │   ├── BookingPanel.jsx   # Booking details and filters
-│   │   ├── BookingPanel.css
-│   │   ├── StatsHeader.jsx    # Statistics dashboard
-│   │   └── StatsHeader.css
-│   ├── utils/
-│   │   └── dateUtils.js       # Date calculations and occupancy logic
-│   ├── App.jsx                # Root component with state management
-│   ├── App.css                # Global styles
-│   └── main.jsx               # React entry point
-├── index.html                 # HTML entry point
-├── package.json               # Dependencies and scripts
-├── vite.config.js             # Vite configuration
-└── README.md                  # This file
-```
-
-## Installation & Setup
-
-### Prerequisites
-- Node.js 14+ and npm
-
-### Steps
-
-1. **Clone or download the project**
-   ```bash
-   cd react.js
-   ```
-
-2. **Install dependencies**
-   ```bash
-   npm install
-   ```
-
-3. **Start development server**
-   ```bash
-   npm run dev
-   ```
-   The application will automatically open at `http://localhost:3000`
-
-4. **Build for production**
-   ```bash
-   npm run build
-   ```
-
-5. **Preview production build**
-   ```bash
-   npm run preview
-   ```
-
-## Key Implementation Details
-
-### Date Logic (Critical)
-
-The occupancy calculation uses **exclusive checkout date logic**:
-- A booking with `checkIn: "2026-01-02"` and `checkOut: "2026-01-05"` occupies rooms for exactly 3 nights: Jan 2, Jan 3, and Jan 4
-- **Jan 5 is NOT occupied** (room is available for checkout or next guest)
-- Only bookings with `status: "confirmed"` count toward occupancy
-- Cancelled/checked-out bookings don't affect occupancy numbers
+The app loads booking data from `public/bookings.json` on startup. The dataset is read once and stored in React state in `App.jsx`, then passed down to the calendar, stats header, and booking panel.
 
 ### Occupancy Calculation
 
-```javascript
-// Example: Check if a booking occupies a specific date
-const booking = { checkIn: "2026-01-02", checkOut: "2026-01-05", status: "confirmed" };
-const date = new Date(2026, 0, 4); // Jan 4, 2026
+Occupancy is calculated at the room level, not the booking level.
 
-// Room IS occupied on Jan 4 (checkIn <= date < checkOut)
-// Room is NOT occupied on Jan 5
+The rule is:
+
+- a booking counts if the day is on or after check-in
+- a booking stops counting on checkout day
+- cancelled bookings do not count
+- duplicate bookings for the same room on the same night are deduplicated with a `Set`
+
+That means a booking from `2026-01-02` to `2026-01-05` occupies Jan 2, Jan 3, and Jan 4, but not Jan 5.
+
+This is the correct hotel model because checkout day is when the room becomes available again.
+
+### Drag Selection
+
+The calendar uses mouse down, mouse enter, and mouse up events to build a range.
+
+The important detail is that the active drag state is mirrored in refs, not only React state. That keeps range selection stable during fast mouse movement. The code sorts the start and end dates so dragging forward or backward produces the same selected range.
+
+### Year View
+
+The year view is the open-scope feature I chose. It reuses the same occupancy rules but renders an at-a-glance overview for all 12 months in the selected year.
+
+I chose it because it adds planning value without needing a backend or a bigger data model. It turns the app from a month-by-month calendar into a broader decision-making tool.
+
+## Tech Stack
+
+- React 18
+- Vite
+- Plain CSS
+- Native JavaScript Date APIs
+
+## Project Structure
+
+```text
+react.js/
+├── public/
+│   └── bookings.json
+├── src/
+│   ├── App.jsx
+│   ├── App.css
+│   ├── main.jsx
+│   ├── utils/
+│   │   └── dateUtils.js
+│   └── components/
+│       ├── Calendar.jsx
+│       ├── YearHeatmap.jsx
+│       ├── BookingPanel.jsx
+│       ├── Navigation.jsx
+│       ├── StatsHeader.jsx
+│       └── DayCell.jsx
+├── index.html
+├── package.json
+├── vite.config.js
+├── NOTES.md
+└── README.md
 ```
 
-### Color Gradient Scheme
+## Run Instructions
 
-- **0 rooms**: `#e8f5e9` (very light green)
-- **1-3 rooms**: `#c8e6c9` (light green)
-- **4-5 rooms**: `#a5d6a7` (green)
-- **6-7 rooms**: `#81c784` (medium green)
-- **8 rooms**: `#ffeb99` (light yellow)
-- **9 rooms**: `#ffcc80` (orange)
-- **10 rooms**: `#ff8a80` (red)
+### Prerequisites
 
-### State Management
+- Node.js 18 or newer
+- npm
 
-The App component manages all state:
-- `bookings[]` - Loaded booking data
-- `currentDate` - Month/year being displayed
-- `selectedRange` - Date range selected by user {start, end}
-- `filters` - Active filters {roomType, bookingStatus}
-- `loading/error` - Data loading states
-
-Data flows downward to child components via props. User interactions (click, drag) update state via callback functions.
-
-## Data Format
-
-### Booking Record Schema
-
-```javascript
-{
-  "id": "BK1000",                    // Unique booking ID
-  "guestName": "James Davis",        // Guest name
-  "roomNumber": "102",               // Room identifier
-  "roomType": "Standard",            // Room type (Standard, Deluxe, Suite, Penthouse)
-  "checkIn": "2026-01-01",           // Check-in date (YYYY-MM-DD)
-  "checkOut": "2026-01-04",          // Check-out date (YYYY-MM-DD, exclusive)
-  "guests": 2,                       // Number of guests
-  "totalAmount": 13500,              // Total amount in INR
-  "currency": "INR",                 // Currency code
-  "status": "confirmed",             // Status: confirmed, cancelled, checked_in, checked_out
-  "source": "Expedia"                // Booking source (Expedia, Airbnb, Direct, Agoda, Booking.com, Walk-in)
-}
-```
-
-### Test Data
-
-The project includes 201 real-world bookings (BK1000-BK1200) covering:
-- **Date Range**: January 1 - May 2, 2026
-- **Rooms**: 10 rooms (101-103, 201-203, 301-302, 401-402)
-- **Room Types**: Standard, Deluxe, Suite, Penthouse
-- **Booking Status**: Mix of confirmed (70%), cancelled, checked-in, checked-out
-- **Sources**: Expedia, Airbnb, Direct, Agoda, Booking.com, Walk-in
-
-## Usage Guide
-
-### Navigating Months
-1. Click "**Previous**" to view previous month
-2. Click "**Next**" to view next month
-3. Click "**Today**" to jump to current month
-
-### Selecting Date Ranges
-1. **Single date**: Click any day cell
-2. **Date range**: Click on a start date, then drag to an end date
-3. **Multi-month range**: Drag selection can span across previous/next month days
-4. **Clearing selection**: Click "Select a date range to view bookings" message resets selection
-
-### Viewing Bookings
-1. Select a date range on the calendar
-2. View all overlapping bookings in the right panel
-3. Filter by room type or booking status using dropdowns
-4. Export bookings as CSV using "📥 Export as CSV" button
-
-### Interpreting Heatmap
-- **Light colors** = Low occupancy (few rooms booked)
-- **Warm colors** (yellow/orange/red) = High occupancy (many rooms booked)
-- **Number (e.g., 7/10)** = 7 rooms occupied out of 10 total
-
-## Browser Compatibility
-
-- Chrome 90+
-- Firefox 88+
-- Safari 14+
-- Edge 90+
-
-## Performance Notes
-
-- Calendar renders efficiently with memoized calculations
-- Date calculations use native JavaScript Date API (no external libraries required)
-- Occupancy recalculation only runs when bookings or date changes
-- CSS Grid for responsive layout
-- Smooth animations and transitions
-
-## Known Limitations
-
-- 10-room hotel capacity hardcoded (can be parameterized for different hotel sizes)
-- Only handles confirmed bookings for occupancy (cancelled bookings excluded)
-- No user authentication or booking management features
-- Read-only interface (no ability to create/edit bookings from UI)
-- No recurring bookings or multi-room bookings per guest
-
-## Future Enhancements
-
-- [ ] Room-level filtering and view (see individual room occupancy)
-- [ ] Date range revenue analytics
-- [ ] Booking trend charts
-- [ ] Overbooking detection alerts
-- [ ] Calendar export functionality (PDF/Image)
-- [ ] Dark mode
-- [ ] Multi-language support
-- [ ] Advanced filtering (source, guest type, etc.)
-
-## Development
-
-### Available Scripts
+### Install Dependencies
 
 ```bash
-npm run dev      # Start development server (auto-reload)
-npm run build    # Create production build
-npm run preview  # Preview production build locally
-npm lint         # Run ESLint (if configured)
+npm install
 ```
 
-### Debugging
+### Start The App
 
-1. **React DevTools**: Install React DevTools browser extension for component inspection
-2. **Browser Console**: Check console for any JavaScript errors
-3. **Network Tab**: Verify `bookings.json` loads correctly
-4. **Application Tab**: Check localStorage for last viewed month
-
-### Adding New Features
-
-1. Create new component file in `src/components/`
-2. Create corresponding `.css` file with same name
-3. Import and add to App component
-4. Update date utilities if date logic needed
-5. Test with development server hot reload
-
-## API Reference
-
-### dateUtils.js Functions
-
-```javascript
-// Calendar display
-generateCalendarDays(year, month)           // Returns array of day objects for 6-week display
-getMonthLabel(year, month)                  // Returns formatted month name (e.g., "January 2026")
-
-// Date calculations
-getDaysInMonth(year, month)                 // Returns number of days in month
-getFirstDayOfMonth(year, month)             // Returns 0-6 (Sunday-Saturday)
-isToday(dateObj)                            // Checks if date is today
-
-// Occupancy calculations
-calculateOccupancyForDate(bookings, dateObj) // Returns number of occupied rooms (0-10)
-getOccupancyColor(occupancy)                // Returns color hex code for occupancy level
-getBookingsInRange(bookings, start, end)    // Returns bookings overlapping date range
-
-// Formatting
-formatDateToString(date)                    // Converts Date to "YYYY-MM-DD"
-parseDateString(dateStr)                    // Converts "YYYY-MM-DD" to Date
-calculateNights(checkIn, checkOut)          // Returns number of nights
-formatDateDisplay(dateObj)                  // Returns formatted display (e.g., "Mar 15, 2026")
+```bash
+npm run dev
 ```
 
-## Troubleshooting
+Then open the local URL shown in the terminal. In this workspace it has been running at `http://localhost:3000/`.
 
-| Issue | Solution |
-|-------|----------|
-| Port 3000 already in use | Change port in vite.config.js or kill process using port |
-| Bookings not loading | Check if `public/bookings.json` exists and is valid JSON |
-| Calendar not displaying | Open browser console to check for JavaScript errors |
-| Dates showing wrong year | Verify bookings.json has correct date format (YYYY-MM-DD) |
-| Drag selection not working | Ensure mouse events are not being intercepted by other handlers |
+### Build For Production
 
-## License
+```bash
+npm run build
+```
 
-This project is provided as-is for demonstration and hotel management purposes.
+### Preview The Production Build
 
-## Contact & Support
+```bash
+npm run preview
+```
 
-For questions or issues, please refer to the project documentation or contact the development team.
+## Key Features In Detail
 
----
+### Month Navigation
 
-**Version**: 1.0.0  
-**Last Updated**: 2024  
-**Build Tool**: Vite 4.3.9  
-**React Version**: 18.2.0
+- Previous and Next move through months.
+- Today returns to the current month.
+- The selected month persists in localStorage.
+
+### Booking Panel
+
+- Shows bookings that overlap the selected date range.
+- Supports room type, status, and source filters.
+- Supports guest-name search.
+- Exports the current filtered selection as CSV.
+
+### Stats Header
+
+- Average occupancy for the visible month.
+- Prorated revenue for bookings that overlap the visible month.
+- Longest stay.
+- Most-booked room.
+- Most-popular room type.
+- Total active bookings.
+
+## Trade-Offs
+
+- The app is front-end only, so there is no backend persistence.
+- I used native Date APIs instead of a date library to keep the bundle lightweight.
+- I hardcoded the hotel size to 10 rooms because the sample dataset is fixed.
+- I kept the layout intentionally clear rather than highly animated.
+
+## What I Would Do With More Time
+
+- Add real screenshot assets to this README.
+- Make the room count configurable.
+- Add charts for revenue and occupancy trends.
+- Add tests for occupancy logic and drag selection.
+- Add a backend so bookings can be edited and saved.
+
+## Verification Checklist
+
+Use this as a quick manual test after `npm run dev`:
+
+- The calendar loads data from `public/bookings.json`.
+- Month view renders correctly.
+- Year view renders correctly.
+- Drag selection highlights a range and updates the booking panel.
+- Filters and search narrow the booking list.
+- CSV export downloads the selected bookings.
+
+## Notes
+
+For a concise implementation summary, see `NOTES.md`.
