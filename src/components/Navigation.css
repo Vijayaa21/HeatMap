@@ -1,0 +1,85 @@
+.navigation {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 1.25rem;
+  margin-bottom: 2.5rem;
+  padding: 1.5rem;
+  background: linear-gradient(135deg, var(--light-bg) 0%, rgba(236, 240, 241, 0.4) 100%);
+  border-radius: 12px;
+  flex-wrap: wrap;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
+  border: 1px solid var(--border-color);
+}
+
+.nav-button {
+  padding: 0.7rem 1.4rem;
+  border: 1.5px solid var(--border-color);
+  background: linear-gradient(135deg, #ffffff 0%, rgba(255, 255, 255, 0.8) 100%);
+  color: var(--text-primary);
+  border-radius: 8px;
+  cursor: pointer;
+  font-size: 0.9rem;
+  font-weight: 600;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  white-space: nowrap;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+  letter-spacing: 0.3px;
+}
+
+.nav-button:hover {
+  border-color: var(--primary-color);
+  color: var(--primary-color);
+  background: linear-gradient(135deg, rgba(144, 164, 174, 0.08) 0%, rgba(144, 164, 174, 0.04) 100%);
+  transform: translateY(-3px);
+  box-shadow: 0 6px 14px rgba(144, 164, 174, 0.15);
+}
+
+.nav-button:active {
+  transform: translateY(-1px);
+  box-shadow: 0 2px 6px rgba(144, 164, 174, 0.1);
+}
+
+.today-btn {
+  background: linear-gradient(135deg, var(--primary-color) 0%, #7f9ba5 100%);
+  color: white;
+  border-color: var(--primary-color);
+  font-weight: 700;
+  box-shadow: 0 2px 8px rgba(144, 164, 174, 0.25);
+}
+
+.today-btn:hover {
+  background: linear-gradient(135deg, #7f9ba5 0%, #6d8a93 100%);
+  border-color: #6d8a93;
+  color: white;
+  box-shadow: 0 8px 16px rgba(144, 164, 174, 0.3);
+  transform: translateY(-3px);
+}
+
+.month-label {
+  font-size: 1.6rem;
+  font-weight: 800;
+  color: var(--text-primary);
+  min-width: 220px;
+  text-align: center;
+  margin: 0;
+  letter-spacing: 0.5px;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+  .navigation {
+    gap: 0.5rem;
+    padding: 0.75rem;
+  }
+
+  .nav-button {
+    padding: 0.5rem 0.8rem;
+    font-size: 0.8rem;
+  }
+
+  .month-label {
+    font-size: 1.2rem;
+    min-width: auto;
+  }
+}

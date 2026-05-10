@@ -1,0 +1,184 @@
+.day-cell {
+  aspect-ratio: 1;
+  padding: 1rem;
+  cursor: pointer;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  background: linear-gradient(135deg, var(--light-bg) 0%, rgba(250, 251, 253, 0.6) 100%);
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  border: 2px solid transparent;
+  min-height: 90px;
+  position: relative;
+  overflow: hidden;
+  border-radius: 10px;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.03);
+}
+
+.day-cell::after {
+  content: attr(data-tooltip);
+  position: absolute;
+  left: 6px;
+  top: 6px;
+  background: rgba(0,0,0,0.75);
+  color: white;
+  padding: 4px 6px;
+  border-radius: 4px;
+  font-size: 11px;
+  display: none;
+  pointer-events: none;
+  z-index: 50;
+}
+
+.day-cell:hover::after {
+  display: block;
+}
+
+.day-cell:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 8px 16px rgba(0, 0, 0, 0.08);
+  background: linear-gradient(135deg, rgba(144, 164, 174, 0.04) 0%, rgba(250, 251, 253, 0.8) 100%);
+}
+
+.day-cell.today {
+  background: linear-gradient(135deg, rgba(144, 164, 174, 0.08) 0%, rgba(144, 164, 174, 0.04) 100%);
+  border: 2px solid var(--primary-color);
+  box-shadow: 0 0 0 4px rgba(144, 164, 174, 0.1), 0 4px 12px rgba(144, 164, 174, 0.15);
+  position: relative;
+}
+
+.day-cell.today .day-number {
+  color: var(--primary-color);
+  font-weight: 700;
+  font-size: 1.2rem;
+}
+
+.day-cell.selected {
+  border: 2px solid var(--primary-color);
+  background: linear-gradient(135deg, rgba(144, 164, 174, 0.12) 0%, rgba(144, 164, 174, 0.06) 100%);
+  box-shadow: 0 4px 12px rgba(144, 164, 174, 0.18), inset 0 0 0 1px rgba(144, 164, 174, 0.1);
+}
+
+.day-cell.other-month {
+  opacity: 0.35;
+  background: linear-gradient(135deg, #f0f2f5 0%, #f5f7fa 100%) !important;
+}
+
+.day-cell.other-month .day-number,
+.day-cell.other-month .occupancy-badge {
+  opacity: 0.4;
+  color: #9ca3af;
+}
+
+.day-number {
+  font-size: 1.15rem;
+  font-weight: 700;
+  color: var(--text-primary);
+  letter-spacing: 0.3px;
+  line-height: 1.2;
+}
+
+.occupancy-info {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.occupancy-badge {
+  display: inline-block;
+  background: linear-gradient(135deg, rgba(144, 164, 174, 0.15) 0%, rgba(144, 164, 174, 0.08) 100%);
+  color: var(--text-primary);
+  padding: 0.35rem 0.65rem;
+  border-radius: 6px;
+  font-size: 0.8rem;
+  font-weight: 700;
+  border: 1px solid rgba(144, 164, 174, 0.15);
+  letter-spacing: 0.2px;
+}
+
+.day-cell.other-month .occupancy-badge {
+  background-color: transparent;
+}
+
+.search-indicator {
+  position: absolute;
+  right: 8px;
+  top: 8px;
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, var(--primary-color) 0%, rgba(144, 164, 174, 0.8) 100%);
+  box-shadow: 0 0 8px rgba(144, 164, 174, 0.4), 0 0 16px rgba(144, 164, 174, 0.15);
+  animation: pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+}
+
+@keyframes pulse {
+  0%, 100% {
+    box-shadow: 0 0 8px rgba(144, 164, 174, 0.4), 0 0 16px rgba(144, 164, 174, 0.15);
+  }
+  50% {
+    box-shadow: 0 0 12px rgba(144, 164, 174, 0.6), 0 0 24px rgba(144, 164, 174, 0.25);
+  }
+}
+
+.day-cell:focus {
+  outline: none;
+}
+
+.day-cell:focus-visible {
+  box-shadow: 0 0 0 8px rgba(144, 164, 174, 0.15), 0 6px 16px rgba(144, 164, 174, 0.2);
+  transform: translateY(-4px);
+  z-index: 5;
+  outline: none;
+}
+
+/* Responsive */
+@media (max-width: 1024px) {
+  .calendar-grid {
+    gap: 6px;
+    padding: 1rem;
+  }
+
+  .day-cell {
+    min-height: 75px;
+    padding: 0.8rem;
+    border-radius: 8px;
+  }
+
+  .day-number {
+    font-size: 1rem;
+  }
+
+  .occupancy-badge {
+    font-size: 0.75rem;
+    padding: 0.3rem 0.5rem;
+  }
+}
+
+@media (max-width: 768px) {
+  .calendar-grid {
+    gap: 4px;
+    padding: 0.75rem;
+  }
+
+  .day-cell {
+    min-height: 65px;
+    padding: 0.6rem;
+    border-radius: 6px;
+  }
+
+  .day-number {
+    font-size: 0.95rem;
+    font-weight: 600;
+  }
+
+  .occupancy-badge {
+    font-size: 0.65rem;
+    padding: 0.25rem 0.4rem;
+  }
+
+  .day-header {
+    padding: 0.85rem 0.5rem;
+    font-size: 0.75rem;
+  }
+}

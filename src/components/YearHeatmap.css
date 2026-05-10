@@ -1,0 +1,133 @@
+.year-heatmap {
+  padding: 0.75rem 0 1.25rem;
+}
+
+.year-header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 1rem;
+  margin-bottom: 1rem;
+}
+
+.year-header h3 {
+  margin: 0;
+  font-size: 1.15rem;
+  color: var(--text-primary);
+}
+
+.year-header p {
+  margin: 0.35rem 0 0;
+  color: var(--text-secondary);
+  font-size: 0.9rem;
+}
+
+.year-legend {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.65rem 0.9rem;
+  justify-content: flex-end;
+  font-size: 0.8rem;
+  color: var(--text-secondary);
+}
+
+.year-legend span {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  white-space: nowrap;
+}
+
+.year-legend i {
+  width: 12px;
+  height: 12px;
+  border-radius: 3px;
+  display: inline-block;
+  border: 1px solid rgba(0, 0, 0, 0.06);
+}
+
+.year-month-grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 1rem;
+}
+
+.year-month-card {
+  background: linear-gradient(180deg, rgba(255, 255, 255, 0.95), rgba(248, 250, 252, 0.95));
+  border: 1px solid rgba(144, 164, 174, 0.18);
+  border-radius: 14px;
+  padding: 0.85rem;
+  box-shadow: 0 4px 14px rgba(15, 23, 42, 0.05);
+}
+
+.year-month-title {
+  font-weight: 700;
+  color: var(--text-primary);
+  margin-bottom: 0.7rem;
+  letter-spacing: 0.2px;
+}
+
+.year-month-days {
+  display: grid;
+  grid-template-columns: repeat(7, minmax(0, 1fr));
+  gap: 4px;
+}
+
+.year-month-days.day-labels {
+  margin-bottom: 0.45rem;
+}
+
+.year-month-days.day-labels span {
+  text-align: center;
+  font-size: 0.68rem;
+  font-weight: 700;
+  color: var(--text-secondary);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.year-day {
+  aspect-ratio: 1;
+  border-radius: 7px;
+  border: 1px solid rgba(0, 0, 0, 0.05);
+  min-height: 20px;
+  position: relative;
+  overflow: hidden;
+  display: flex;
+  align-items: flex-start;
+  justify-content: flex-end;
+  padding: 2px 4px;
+  font-size: 0.65rem;
+  color: rgba(38, 50, 56, 0.85);
+}
+
+.year-day span {
+  position: relative;
+  z-index: 1;
+  font-weight: 700;
+}
+
+.year-day.other-month {
+  color: rgba(100, 116, 139, 0.55);
+  opacity: 0.7;
+}
+
+@media (max-width: 1100px) {
+  .year-month-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+@media (max-width: 700px) {
+  .year-header {
+    flex-direction: column;
+  }
+
+  .year-legend {
+    justify-content: flex-start;
+  }
+
+  .year-month-grid {
+    grid-template-columns: 1fr;
+  }
+}

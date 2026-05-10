@@ -1,0 +1,38 @@
+.calendar {
+  width: 100%;
+}
+
+.calendar-grid {
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+  gap: 8px;
+  background-color: transparent;
+  padding: 1.5rem;
+  border-radius: 12px;
+  overflow: hidden;
+}
+
+.day-header {
+  background: linear-gradient(180deg, var(--header-bg) 0%, rgba(236, 240, 241, 0.7) 100%);
+  color: var(--text-primary);
+  font-weight: 700;
+  padding: 1.25rem 0.75rem;
+  text-align: center;
+  font-size: 0.85rem;
+  letter-spacing: 0.5px;
+  text-transform: uppercase;
+  border-radius: 8px;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+}
+
+/* Responsive grid */
+@media (max-width: 768px) {
+  .calendar-grid {
+    gap: 0;
+  }
+
+  .day-header {
+    padding: 0.75rem 0.5rem;
+    font-size: 0.8rem;
+  }
+}
